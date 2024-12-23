@@ -1,0 +1,5 @@
+-r
+.kube
+views/grid_templ.go
+views/index_templ.go
+ytdlweb.hcl

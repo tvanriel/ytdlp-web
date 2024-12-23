@@ -1,0 +1,9 @@
+---
+services:
+  minio:
+    image: 'bitnami/minio'
+    environment:
+        DEFAULT_BUCKETS: ytdl
+    ports:
+      - '9000:9000'
+      - '9001:9001'
