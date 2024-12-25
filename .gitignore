@@ -3,3 +3,5 @@
 views/grid_templ.go
 views/index_templ.go
 ytdlweb.hcl
+ytdlp-web
+tmp/

@@ -21,7 +21,8 @@ import (
 )
 
 type Configuration struct {
-	Bucket string `hcl:"bucket"`
+	Bucket         string `hcl:"bucket"`
+	UsernameHeader string `hcl:"username_header,optional"`
 }
 
 type WebOpts struct {
@@ -65,9 +66,11 @@ func (w *Web) Download(ctx echo.Context) error {
 		return err
 	}
 
+	username := ctx.Request().Header.Get(w.Config.UsernameHeader)
+
 	videoId := form.Get("video_id")
 
-	uuid, err := w.Downloader.Download(videoId)
+	uuid, err := w.Downloader.Download(videoId, username)
 	if err != nil {
 		ctx.Response().WriteHeader(500)
 		_, err := fmt.Fprintf(ctx.Response().Writer, "error: %s", err.Error())
@@ -89,6 +92,8 @@ func (w *Web) indexhtml(ctx echo.Context) error {
 		Recursive: true,
 	})
 
+	username := ctx.Request().Header.Get(w.Config.UsernameHeader)
+
 	items := []views.RecentlyDownloadedEntry{}
 	for o := range objects {
 		if o.Err != nil {
@@ -104,11 +109,18 @@ func (w *Web) indexhtml(ctx echo.Context) error {
 			continue
 		}
 
+		if w.Config.UsernameHeader != "" {
+			if username != entry.Username {
+				continue
+			}
+		}
+
 		items = append(items, views.RecentlyDownloadedEntry{
 			UUID:  entry.UUID,
 			Title: entry.Title,
 		})
 	}
+
 	w.Logging.Info("requested objects", zap.Int("len_items", len(items)))
 
 	return views.Index(items, ctx.QueryParam("success") != "").Render(ctx.Request().Context(), ctx.Response().Writer)

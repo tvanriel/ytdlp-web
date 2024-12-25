@@ -8,6 +8,7 @@ type MetaEntry struct {
 	DurationText string `json:"duration_string"`
 	OriginalURL  string `json:"original_url"`
 	Timestamp    int    `json:"timestamp"`
+	Username     string `json:"username"`
 	Files        struct {
 		Thumbnail string `json:"thumbnail"`
 		Audio     string `json:"audio"`

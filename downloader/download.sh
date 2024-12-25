@@ -77,17 +77,28 @@ fi
     (jq -sc '.[0] * .[1] * .[2]' .thumbnail.json .video.json .audio.json | jq '{files: .}' ) > .files.json
 
 
+
+
     # download info
     "${YT_DLP}" \
         "${YOUTUBE_URL}" \
         --no-download -j | \
         jq "$info_keys"> .info.json
 
+
+
+
     date --iso-8601=minutes | jq -R '{time: .}' > .time.json
+    echo "$MINIO_PREFIX" | jq -R '{uuid: .}' > .uuid.json
 
-    echo "$MINIO_PREFIX" | jq -R "{uuid: .}" > .prefix.json
+    jq -sc '.[0] * .[1] * .[2] * .[3] * .[4]' .files.json .meta.json .time.json .info.json .uuid.json > metadata.json
 
-    jq -sc '.[0] * .[1] * .[2] * .[3] * .[4]' .prefix.json .files.json .meta.json .time.json .info.json > metadata.json
+    if [ "${USERNAME}" != "" ]; then
+        echo "$USERNAME" | jq -R '{username: .}' > .user.json
+        jq -sc '.[0] * .[1]' metadata.json .user.json > tmp.json
+        mv tmp.json metadata.json
+    fi
+
 
     mc cp metadata.json "target/${MINIO_BUCKET}/meta/${MINIO_PREFIX}.json"
 )

@@ -2,6 +2,9 @@ UPDATER_IMAGE = mitaka8/yt-dlp-updater
 DOWNLOADER_IMAGE = mitaka8/yt-dlp-downloader
 WEB_IMAGE = mitaka8/yt-dlp-web
 
+.PHONY: all
+all: updater downloader web
+
 .PHONY: updater
 updater:
 	cd updater; docker buildx build -t ${UPDATER_IMAGE} --push --platform linux/amd64,linux/arm64 .
